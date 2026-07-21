@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect
-from db_helpers import get_all_members, add_member
+from db_helpers import get_all_members, add_member, get_all_plans
 
 app = Flask(__name__)
 
@@ -23,7 +23,8 @@ def add_member_route():
         add_member(name, phone, join_date, plan_id)
         return redirect('/members')
 
-    return render_template('add_member.html')
+    plans = get_all_plans()
+    return render_template('add_member.html', plans=plans)
 
 if __name__ == '__main__':
     app.run(debug=True)

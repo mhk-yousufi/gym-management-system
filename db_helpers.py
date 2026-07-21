@@ -27,3 +27,12 @@ def get_all_members():
     members = cursor.fetchall()
     connection.close()
     return members
+
+def get_all_plans():
+    """Returns a list of all membership plans."""
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM membership_plans")
+    plans = cursor.fetchall()
+    connection.close()
+    return plans
