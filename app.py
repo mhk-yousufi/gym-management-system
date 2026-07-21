@@ -1,5 +1,5 @@
-from flask import Flask, render_template
-from db_helpers import get_all_members
+from flask import Flask, render_template, request, redirect
+from db_helpers import get_all_members, add_member
 
 app = Flask(__name__)
 
@@ -11,6 +11,19 @@ def home():
 def members_list():
     members = get_all_members()
     return render_template('members.html', members=members)
+
+@app.route('/members/add', methods=['GET', 'POST'])
+def add_member_route():
+    if request.method == 'POST':
+        name = request.form['name']
+        phone = request.form['phone']
+        join_date = request.form['join_date']
+        plan_id = request.form['plan_id']
+
+        add_member(name, phone, join_date, plan_id)
+        return redirect('/members')
+
+    return render_template('add_member.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

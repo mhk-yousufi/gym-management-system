@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Member</title>
+</head>
+<body>
+    <h1>Add New Member</h1>
+    <form method="POST" action="/members/add">
+        <label>Name:</label><br>
+        <input type="text" name="name" required><br><br>
+
+        <label>Phone:</label><br>
+        <input type="text" name="phone"><br><br>
+
+        <label>Join Date:</label><br>
+        <input type="date" name="join_date" required><br><br>
+
+        <label>Plan ID:</label><br>
+        <input type="number" name="plan_id" required><br><br>
+
+        <button type="submit">Add Member</button>
+    </form>
+</body>
+</html>
