@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from db_helpers import get_all_members
 
 app = Flask(__name__)
@@ -10,11 +10,7 @@ def home():
 @app.route('/members')
 def members_list():
     members = get_all_members()
-    output = "<h1>All Members</h1><ul>"
-    for m in members:
-        output += f"<li>{m['name']} — {m['phone']}</li>"
-    output += "</ul>"
-    return output
+    return render_template('members.html', members=members)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gym Members</title>
+</head>
+<body>
+    <h1>All Members</h1>
+    <ul>
+        {% for member in members %}
+            <li>{{ member['name'] }} — {{ member['phone'] }} (Joined: {{ member['join_date'] }})</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
