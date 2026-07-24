@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Profile</title>
+</head>
+<body>
+    <h1>Welcome, {{ member['name'] }}</h1>
+
+    <p><strong>Phone:</strong> {{ member['phone'] }}</p>
+    <p><strong>Joined:</strong> {{ member['join_date'] }}</p>
+    <p><strong>Status:</strong> {{ status }}</p>
+
+    <h2>Payment History</h2>
+    <ul>
+        {% for p in payments %}
+            <li>{{ p['payment_date'] }} — {{ p['plan_name'] }} — Rs. {{ p['amount'] }}</li>
+        {% endfor %}
+    </ul>
+
+    <br>
+    <a href="/logout">Logout</a>
+</body>
+</html>

@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, session
-from db_helpers import get_all_members, add_member, get_all_plans, get_member_by_id, update_member, delete_member, add_payment, get_payments_for_member, get_member_status, get_dashboard_stats, verify_login
+from db_helpers import get_all_members, add_member, get_all_plans, get_member_by_id, update_member, delete_member, add_payment, get_payments_for_member, get_member_status, get_dashboard_stats, verify_login, get_member_by_user_id
 from functools import wraps
 
 def login_required(f):
@@ -7,6 +7,16 @@ def login_required(f):
     def decorated_function(*args, **kwargs):
         if 'user_id' not in session:
             return redirect('/login')
+        return f(*args, **kwargs)
+    return decorated_function
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            return redirect('/login')
+        if session.get('role') != 'admin':
+            return "Access denied. Admins only.", 403
         return f(*args, **kwargs)
     return decorated_function
 
@@ -19,13 +29,13 @@ def home():
     return "Gym Management System is running!"
 
 @app.route('/members')
-@login_required
+@admin_required
 def members_list():
     members = get_all_members()
     return render_template('members.html', members=members, get_status=get_member_status)
 
 @app.route('/members/add', methods=['GET', 'POST'])
-@login_required
+@admin_required
 def add_member_route():
     if request.method == 'POST':
         name = request.form['name']
@@ -38,7 +48,7 @@ def add_member_route():
     return render_template('add_member.html', plans=plans)
 
 @app.route('/members/edit/<int:member_id>', methods=['GET', 'POST'])
-@login_required
+@admin_required
 def edit_member_route(member_id):
     if request.method == 'POST':
         name = request.form['name']
@@ -52,13 +62,13 @@ def edit_member_route(member_id):
     return render_template('edit_member.html', member=member, plans=plans)
 
 @app.route('/members/delete/<int:member_id>')
-@login_required
+@admin_required
 def delete_member_route(member_id):
     delete_member(member_id)
     return redirect('/members')
 
 @app.route('/members/<int:member_id>/pay', methods=['GET', 'POST'])
-@login_required
+@admin_required
 def record_payment_route(member_id):
     if request.method == 'POST':
         plan_id = request.form['plan_id']
@@ -74,7 +84,7 @@ def record_payment_route(member_id):
     return render_template('add_payment.html', member=member, plans=plans, payments=payments)
 
 @app.route('/dashboard')
-@login_required
+@admin_required
 def dashboard():
     stats = get_dashboard_stats()
     return render_template('dashboard.html', stats=stats)
@@ -90,7 +100,11 @@ def login():
             session['user_id'] = user['id']
             session['username'] = user['username']
             session['role'] = user['role']
-            return redirect('/dashboard')
+
+            if user['role'] == 'admin':
+                return redirect('/dashboard')
+            else:
+                return redirect('/my-profile')
         else:
             return render_template('login.html', error="Wrong username or password")
 
@@ -100,6 +114,18 @@ def login():
 def logout():
     session.clear()
     return redirect('/login')
+
+
+@app.route('/my-profile')
+@login_required
+def my_profile():
+    member = get_member_by_user_id(session['user_id'])
+    if member is None:
+        return "No member profile linked to this account."
+
+    status = get_member_status(member['id'])
+    payments = get_payments_for_member(member['id'])
+    return render_template('my_profile.html', member=member, status=status, payments=payments)
 
 if __name__ == '__main__':
     app.run(debug=True)

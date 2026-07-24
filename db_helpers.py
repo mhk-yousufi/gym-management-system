@@ -185,3 +185,30 @@ def verify_login(username, password):
     if check_password_hash(user['password_hash'], password):
         return user
     return None
+
+def create_member_login(member_id, username, password):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    hashed = generate_password_hash(password)
+    cursor.execute("""
+        INSERT INTO users (username, password_hash, role)
+        VALUES (?, ?, ?)
+    """, (username, hashed, "member"))
+
+    new_user_id = cursor.lastrowid
+
+    cursor.execute("""
+        UPDATE members SET user_id = ? WHERE id = ?
+    """, (new_user_id, member_id))
+
+    conn.commit()
+    conn.close()
+
+def get_member_by_user_id(user_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM members WHERE user_id = ?", (user_id,))
+    member = cursor.fetchone()
+    conn.close()
+    return member
