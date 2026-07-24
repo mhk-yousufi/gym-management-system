@@ -1,5 +1,14 @@
 from flask import Flask, render_template, request, redirect, session
 from db_helpers import get_all_members, add_member, get_all_plans, get_member_by_id, update_member, delete_member, add_payment, get_payments_for_member, get_member_status, get_dashboard_stats, verify_login
+from functools import wraps
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            return redirect('/login')
+        return f(*args, **kwargs)
+    return decorated_function
 
 app = Flask(__name__)
 
@@ -10,11 +19,13 @@ def home():
     return "Gym Management System is running!"
 
 @app.route('/members')
+@login_required
 def members_list():
     members = get_all_members()
     return render_template('members.html', members=members, get_status=get_member_status)
 
 @app.route('/members/add', methods=['GET', 'POST'])
+@login_required
 def add_member_route():
     if request.method == 'POST':
         name = request.form['name']
@@ -27,6 +38,7 @@ def add_member_route():
     return render_template('add_member.html', plans=plans)
 
 @app.route('/members/edit/<int:member_id>', methods=['GET', 'POST'])
+@login_required
 def edit_member_route(member_id):
     if request.method == 'POST':
         name = request.form['name']
@@ -40,11 +52,13 @@ def edit_member_route(member_id):
     return render_template('edit_member.html', member=member, plans=plans)
 
 @app.route('/members/delete/<int:member_id>')
+@login_required
 def delete_member_route(member_id):
     delete_member(member_id)
     return redirect('/members')
 
 @app.route('/members/<int:member_id>/pay', methods=['GET', 'POST'])
+@login_required
 def record_payment_route(member_id):
     if request.method == 'POST':
         plan_id = request.form['plan_id']
@@ -60,6 +74,7 @@ def record_payment_route(member_id):
     return render_template('add_payment.html', member=member, plans=plans, payments=payments)
 
 @app.route('/dashboard')
+@login_required
 def dashboard():
     stats = get_dashboard_stats()
     return render_template('dashboard.html', stats=stats)
