@@ -1,5 +1,7 @@
 import sqlite3
 
+from datetime import datetime, timedelta
+
 def get_connection():
     """Creates a database connection with column-name access enabled."""
     connection = sqlite3.connect('database/gym.db')
@@ -86,3 +88,29 @@ def get_payments_for_member(member_id):
     payments = cursor.fetchall()
     conn.close()
     return payments
+
+def get_member_status(member_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT payments.payment_date, membership_plans.duration_months
+        FROM payments
+        JOIN membership_plans ON payments.plan_id = membership_plans.id
+        WHERE payments.member_id = ?
+        ORDER BY payments.payment_date DESC
+        LIMIT 1
+    """, (member_id,))
+    last_payment = cursor.fetchone()
+    conn.close()
+
+    if last_payment is None:
+        return "No payments yet"
+
+    payment_date = datetime.strptime(last_payment['payment_date'], '%Y-%m-%d')
+    duration_months = last_payment['duration_months']
+    expiry_date = payment_date + timedelta(days=duration_months * 30)
+
+    if expiry_date < datetime.now():
+        return f"Expired on {expiry_date.strftime('%Y-%m-%d')}"
+    else:
+        return f"Active until {expiry_date.strftime('%Y-%m-%d')}"

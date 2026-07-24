@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect
-from db_helpers import get_all_members, add_member, get_all_plans, get_member_by_id, update_member, delete_member, add_payment, get_payments_for_member
+from db_helpers import get_all_members, add_member, get_all_plans, get_member_by_id, update_member, delete_member, add_payment, get_payments_for_member, get_member_status
 
 app = Flask(__name__)
 
@@ -10,7 +10,7 @@ def home():
 @app.route('/members')
 def members_list():
     members = get_all_members()
-    return render_template('members.html', members=members)
+    return render_template('members.html', members=members, get_status=get_member_status)
 
 @app.route('/members/add', methods=['GET', 'POST'])
 def add_member_route():

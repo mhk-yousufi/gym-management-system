@@ -10,6 +10,7 @@
         {% for member in members %}
             <li>
                 {{ member['name'] }} — {{ member['phone'] }} (Joined: {{ member['join_date'] }})
+                 — <strong>{{ get_status(member['id']) }}</strong>
                 <a href="/members/edit/{{ member['id'] }}">Edit</a>
                 <a href="/members/delete/{{ member['id'] }}">Delete</a>
                 <a href="/members/{{ member['id'] }}/pay">Record Payment</a>
