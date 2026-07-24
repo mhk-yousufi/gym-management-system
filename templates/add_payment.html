@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Record Payment</title>
+</head>
+<body>
+    <h1>Record Payment for {{ member['name'] }}</h1>
+    <form method="POST" action="/members/{{ member['id'] }}/pay">
+        <label>Plan:</label><br>
+        <select name="plan_id" required>
+            {% for plan in plans %}
+                <option value="{{ plan['id'] }}">{{ plan['plan_name'] }} - Rs. {{ plan['price'] }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <label>Amount Paid:</label><br>
+        <input type="number" step="0.01" name="amount" required><br><br>
+
+        <label>Payment Date:</label><br>
+        <input type="date" name="payment_date" required><br><br>
+
+        <button type="submit">Record Payment</button>
+    </form>
+
+    <h2>Payment History</h2>
+    <ul>
+        {% for p in payments %}
+            <li>{{ p['payment_date'] }} — {{ p['plan_name'] }} — Rs. {{ p['amount'] }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

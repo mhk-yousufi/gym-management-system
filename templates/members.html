@@ -12,6 +12,7 @@
                 {{ member['name'] }} — {{ member['phone'] }} (Joined: {{ member['join_date'] }})
                 <a href="/members/edit/{{ member['id'] }}">Edit</a>
                 <a href="/members/delete/{{ member['id'] }}">Delete</a>
+                <a href="/members/{{ member['id'] }}/pay">Record Payment</a>
             </li>
         {% endfor %}
     </ul>

@@ -62,3 +62,27 @@ def get_member_by_id(member_id):
     member = cursor.fetchone()
     conn.close()
     return member
+
+def add_payment(member_id, plan_id, amount, payment_date):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO payments (member_id, plan_id, amount, payment_date)
+        VALUES (?, ?, ?, ?)
+    """, (member_id, plan_id, amount, payment_date))
+    conn.commit()
+    conn.close()
+
+def get_payments_for_member(member_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT payments.*, membership_plans.plan_name
+        FROM payments
+        JOIN membership_plans ON payments.plan_id = membership_plans.id
+        WHERE payments.member_id = ?
+        ORDER BY payment_date DESC
+    """, (member_id,))
+    payments = cursor.fetchall()
+    conn.close()
+    return payments
