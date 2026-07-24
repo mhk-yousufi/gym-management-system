@@ -114,3 +114,47 @@ def get_member_status(member_id):
         return f"Expired on {expiry_date.strftime('%Y-%m-%d')}"
     else:
         return f"Active until {expiry_date.strftime('%Y-%m-%d')}"
+
+def get_dashboard_stats():
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    # total members
+    cursor.execute("SELECT COUNT(*) as total FROM members")
+    total_members = cursor.fetchone()['total']
+
+    # revenue this month
+    current_month = datetime.now().strftime('%Y-%m')
+    cursor.execute("""
+        SELECT SUM(amount) as total_revenue
+        FROM payments
+        WHERE payment_date LIKE ?
+    """, (current_month + '%',))
+    result = cursor.fetchone()
+    monthly_revenue = result['total_revenue'] if result['total_revenue'] else 0
+
+    conn.close()
+
+    # active vs expired - reuse the status function we already wrote
+    all_members = get_all_members()
+    active_count = 0
+    expired_count = 0
+    no_payment_count = 0
+
+    for m in all_members:
+        status = get_member_status(m['id'])
+        if status.startswith("Active"):
+            active_count += 1
+        elif status.startswith("Expired"):
+            expired_count += 1
+        else:
+            no_payment_count += 1
+
+    return {
+        'total_members': total_members,
+        'monthly_revenue': monthly_revenue,
+        'active_count': active_count,
+        'expired_count': expired_count,
+        'no_payment_count': no_payment_count
+    }
+

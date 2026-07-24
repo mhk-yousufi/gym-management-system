@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect
-from db_helpers import get_all_members, add_member, get_all_plans, get_member_by_id, update_member, delete_member, add_payment, get_payments_for_member, get_member_status
+from db_helpers import get_all_members, add_member, get_all_plans, get_member_by_id, update_member, delete_member, add_payment, get_payments_for_member, get_member_status, get_dashboard_stats
 
 app = Flask(__name__)
 
@@ -56,6 +56,11 @@ def record_payment_route(member_id):
     plans = get_all_plans()
     payments = get_payments_for_member(member_id)
     return render_template('add_payment.html', member=member, plans=plans, payments=payments)
+
+@app.route('/dashboard')
+def dashboard():
+    stats = get_dashboard_stats()
+    return render_template('dashboard.html', stats=stats)
 
 if __name__ == '__main__':
     app.run(debug=True)

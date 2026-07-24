@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+    <h1>Gym Dashboard</h1>
+
+    <p><strong>Total Members:</strong> {{ stats['total_members'] }}</p>
+    <p><strong>Revenue This Month:</strong> Rs. {{ stats['monthly_revenue'] }}</p>
+    <p><strong>Active Members:</strong> {{ stats['active_count'] }}</p>
+    <p><strong>Expired Members:</strong> {{ stats['expired_count'] }}</p>
+    <p><strong>Never Paid:</strong> {{ stats['no_payment_count'] }}</p>
+
+    <br>
+    <a href="/members">View All Members</a>
+</body>
+</html>
