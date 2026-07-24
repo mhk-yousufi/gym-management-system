@@ -36,3 +36,29 @@ def get_all_plans():
     plans = cursor.fetchall()
     connection.close()
     return plans
+
+def update_member(member_id, name, phone, join_date, plan_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE members
+        SET name = ?, phone = ?, join_date = ?, plan_id = ?
+        WHERE id = ?
+    """, (name, phone, join_date, plan_id, member_id))
+    conn.commit()
+    conn.close()
+
+def delete_member(member_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM members WHERE id = ?", (member_id,))
+    conn.commit()
+    conn.close()
+
+def get_member_by_id(member_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM members WHERE id = ?", (member_id,))
+    member = cursor.fetchone()
+    conn.close()
+    return member
