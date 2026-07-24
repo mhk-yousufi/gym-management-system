@@ -1,6 +1,7 @@
 import sqlite3
 
 from datetime import datetime, timedelta
+from werkzeug.security import generate_password_hash, check_password_hash
 
 def get_connection():
     """Creates a database connection with column-name access enabled."""
@@ -158,3 +159,29 @@ def get_dashboard_stats():
         'no_payment_count': no_payment_count
     }
 
+def create_user(username, password, role):
+    conn = get_connection()
+    cursor = conn.cursor()
+    hashed = generate_password_hash(password)
+    cursor.execute("""
+        INSERT INTO users (username, password_hash, role)
+        VALUES (?, ?, ?)
+    """, (username, hashed, role))
+    conn.commit()
+    conn.close()
+
+def get_user_by_username(username):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+    user = cursor.fetchone()
+    conn.close()
+    return user
+
+def verify_login(username, password):
+    user = get_user_by_username(username)
+    if user is None:
+        return None
+    if check_password_hash(user['password_hash'], password):
+        return user
+    return None

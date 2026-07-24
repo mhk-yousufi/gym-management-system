@@ -1,7 +1,9 @@
-from flask import Flask, render_template, request, redirect
-from db_helpers import get_all_members, add_member, get_all_plans, get_member_by_id, update_member, delete_member, add_payment, get_payments_for_member, get_member_status, get_dashboard_stats
+from flask import Flask, render_template, request, redirect, session
+from db_helpers import get_all_members, add_member, get_all_plans, get_member_by_id, update_member, delete_member, add_payment, get_payments_for_member, get_member_status, get_dashboard_stats, verify_login
 
 app = Flask(__name__)
+
+app.secret_key = 'gym-management-secret-key-change-this-later'
 
 @app.route('/')
 def home():
@@ -61,6 +63,28 @@ def record_payment_route(member_id):
 def dashboard():
     stats = get_dashboard_stats()
     return render_template('dashboard.html', stats=stats)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        user = verify_login(username, password)
+        if user:
+            session['user_id'] = user['id']
+            session['username'] = user['username']
+            session['role'] = user['role']
+            return redirect('/dashboard')
+        else:
+            return render_template('login.html', error="Wrong username or password")
+
+    return render_template('login.html', error=None)
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect('/login')
 
 if __name__ == '__main__':
     app.run(debug=True)
